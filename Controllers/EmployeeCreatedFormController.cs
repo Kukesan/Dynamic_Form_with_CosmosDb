@@ -1,6 +1,7 @@
 ﻿using Dynamic_Form_with_CosmosDb.Models;
 using Dynamic_Form_with_CosmosDb.Service;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection;
 
 namespace Dynamic_Form_with_CosmosDb.Controllers
 {
@@ -10,9 +11,11 @@ namespace Dynamic_Form_with_CosmosDb.Controllers
     {
         public readonly IEmployeeCreatedFormService _employeeCreatedFormService;
 
-        public EmployeeCreatedFormController(IEmployeeCreatedFormService todoService)
+        UserFillForm userFillForm = new UserFillForm();
+
+        public EmployeeCreatedFormController(IEmployeeCreatedFormService employeeCreatedFormService)
         {
-            _employeeCreatedFormService = todoService;
+            _employeeCreatedFormService = employeeCreatedFormService;
         }
         [HttpGet]
         public async Task<IActionResult> Get()
@@ -21,6 +24,45 @@ namespace Dynamic_Form_with_CosmosDb.Controllers
             var result = await _employeeCreatedFormService.Get(sqlQuery);
             return Ok(result);
         }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(string id)
+        {
+            var result = await _employeeCreatedFormService.GetById(id);
+            if (result == null)
+            {
+                return NotFound();
+            }
+
+            PropertyInfo[] properties = result.GetType().GetProperties();
+            bool hasHiddenProperty = false;
+
+            // Loop through properties from "phone" to "gender"
+            foreach (var property in properties)
+            {
+                if (property.Name != "id" && property.Name != "title" && property.Name != "description")
+                {
+                    var isHideProperty = property.PropertyType.GetProperty("isHide");
+
+                    if (isHideProperty != null && isHideProperty.PropertyType == typeof(bool))
+                    {
+                        // Retrieve the value of 'isHide'
+                        var isHideValue = (bool)property.GetValue(result).GetType().GetProperty("isHide").GetValue(property.GetValue(result));
+
+                        if (!isHideValue)
+                        {
+                            userFillForm.AddMetadata(property.Name, "");
+                        }
+                        else
+                        {
+                            hasHiddenProperty = true;
+                        }
+                    }
+                }
+            }
+            return Ok(userFillForm);
+        }
+
         [HttpPost]
         public async Task<IActionResult> Add(EmployeeCreatedForm employeeCreatedForm)
         {
@@ -36,8 +78,7 @@ namespace Dynamic_Form_with_CosmosDb.Controllers
             return Ok(result);
         }
         [HttpDelete]
-        public async Task<IActionResult> Delete(string id, string
-        partition)
+        public async Task<IActionResult> Delete(string id, string partition)
         {
             await _employeeCreatedFormService.Delete(id, partition);
             return Ok();

@@ -5,6 +5,7 @@ namespace Dynamic_Form_with_CosmosDb.Service
     public interface IEmployeeCreatedFormService
     {
         Task<List<EmployeeCreatedForm>> Get(string query);
+        Task<EmployeeCreatedForm> GetById(string id);
         Task<EmployeeCreatedForm> Add(EmployeeCreatedForm employeeCreatedForm);
         Task<EmployeeCreatedForm> Update(EmployeeCreatedForm employeeCreatedForm);
         Task<EmployeeCreatedForm> Delete(string id, string partition);

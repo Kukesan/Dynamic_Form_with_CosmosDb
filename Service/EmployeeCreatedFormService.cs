@@ -7,13 +7,9 @@ namespace Dynamic_Form_with_CosmosDb.Service
     {
         private readonly Container _container;
 
-        public EmployeeCreatedFormService(
-            CosmosClient cosmosClient,
-            string databaseName,
-            string containerName)
+        public EmployeeCreatedFormService(CosmosClient cosmosClient, string databaseName, string containerName)
         {
-            _container = cosmosClient.GetContainer(databaseName,
-            containerName);
+            _container = cosmosClient.GetContainer(databaseName,containerName);
         }
         public async Task<EmployeeCreatedForm> Add(EmployeeCreatedForm EmployeeCreatedForm)
         {
@@ -21,9 +17,10 @@ namespace Dynamic_Form_with_CosmosDb.Service
 
             return item;
         }
-        public async Task Delete(string id, string partition)
+        public async Task<EmployeeCreatedForm> Delete(string id, string partition)
         {
-            await _container.DeleteItemAsync<EmployeeCreatedForm>(id, new PartitionKey(partition));
+            var result = await _container.DeleteItemAsync<EmployeeCreatedForm>(id, new PartitionKey(partition));
+            return result;
         }
         public async Task<List<EmployeeCreatedForm>> Get(string cosmosQuery)
         {
@@ -36,15 +33,24 @@ namespace Dynamic_Form_with_CosmosDb.Service
             }
             return results;
         }
+
+        public async Task<EmployeeCreatedForm> GetById(string id)
+        {
+            try
+            {
+                var response = await _container.ReadItemAsync<EmployeeCreatedForm>(id, new PartitionKey(id));
+                return response.Resource;
+            }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+        }
+
         public async Task<EmployeeCreatedForm> Update(EmployeeCreatedForm employeeCreatedForm)
         {
             var item = await _container.UpsertItemAsync<EmployeeCreatedForm>(employeeCreatedForm, new PartitionKey(employeeCreatedForm.Id));
             return item;
         }
-
-        Task<EmployeeCreatedForm> IEmployeeCreatedFormService.Delete(string id, string partition)
-        {
-            throw new NotImplementedException();
-        }
-    }
+   }
 }
