@@ -1,0 +1,6 @@
+@Dynamic_Form_with_CosmosDb_HostAddress = http://localhost:5197
+
+GET {{Dynamic_Form_with_CosmosDb_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
