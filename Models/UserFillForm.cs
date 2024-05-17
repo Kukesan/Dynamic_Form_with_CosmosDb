@@ -7,21 +7,6 @@ namespace Dynamic_Form_with_CosmosDb.Models
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
 
-        [JsonProperty(PropertyName = "title")]
-        public string Title {  get; set; }
-
-        [JsonProperty(PropertyName = "description")]
-        public string Description { get; set; }
-
-        [JsonProperty(PropertyName = "firstName")]
-        public string FirstName { get; set; }
-
-        [JsonProperty(PropertyName = "lastName")]
-        public string LastName { get; set; }
-
-        [JsonProperty(PropertyName = "email")]
-        public string Email { get; set; }
-
         private Dictionary<string, object> metadata = new Dictionary<string, object>();
       
         public void AddMetadata(string key, object value)
@@ -39,6 +24,11 @@ namespace Dynamic_Form_with_CosmosDb.Models
             {
                 return null;
             }
+        }
+
+        public Dictionary<string, object> GetAllMetadata()
+        {
+            return metadata;
         }
     }
 }

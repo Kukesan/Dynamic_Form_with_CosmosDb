@@ -15,6 +15,17 @@ builder.Services.AddSingleton<IEmployeeCreatedFormService>(options =>
     return new EmployeeCreatedFormService(cosmosClient, dbName, containerName);
 });
 
+builder.Services.AddSingleton<IUserFillFormService>(options =>
+{
+    string url = builder.Configuration.GetSection("CosmosDb").GetValue<string>("URL");
+    string primaryKey = builder.Configuration.GetSection("CosmosDb").GetValue<string>("PrimaryKey");
+    string dbName = builder.Configuration.GetSection("CosmosDb").GetValue<string>("DatabaseName");
+    string containerName = "UserFillForm";
+
+    var cosmosClient = new CosmosClient(url, primaryKey);
+    return new UserFillFormService(cosmosClient, dbName, containerName);
+});
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

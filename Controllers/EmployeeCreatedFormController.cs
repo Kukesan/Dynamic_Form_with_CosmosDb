@@ -11,8 +11,6 @@ namespace Dynamic_Form_with_CosmosDb.Controllers
     {
         public readonly IEmployeeCreatedFormService _employeeCreatedFormService;
 
-        UserFillForm userFillForm = new UserFillForm();
-
         public EmployeeCreatedFormController(IEmployeeCreatedFormService employeeCreatedFormService)
         {
             _employeeCreatedFormService = employeeCreatedFormService;
@@ -33,34 +31,7 @@ namespace Dynamic_Form_with_CosmosDb.Controllers
             {
                 return NotFound();
             }
-
-            PropertyInfo[] properties = result.GetType().GetProperties();
-            bool hasHiddenProperty = false;
-
-            // Loop through properties from "phone" to "gender"
-            foreach (var property in properties)
-            {
-                if (property.Name != "id" && property.Name != "title" && property.Name != "description")
-                {
-                    var isHideProperty = property.PropertyType.GetProperty("isHide");
-
-                    if (isHideProperty != null && isHideProperty.PropertyType == typeof(bool))
-                    {
-                        // Retrieve the value of 'isHide'
-                        var isHideValue = (bool)property.GetValue(result).GetType().GetProperty("isHide").GetValue(property.GetValue(result));
-
-                        if (!isHideValue)
-                        {
-                            userFillForm.AddMetadata(property.Name, "");
-                        }
-                        else
-                        {
-                            hasHiddenProperty = true;
-                        }
-                    }
-                }
-            }
-            return Ok(userFillForm);
+            return Ok(result);
         }
 
         [HttpPost]
